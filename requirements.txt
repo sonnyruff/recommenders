@@ -8,3 +8,6 @@ python-dateutil==2.8.1
 pytz @ file:///tmp/build/80754af9/pytz_1608922264688/work
 six @ file:///C:/ci/six_1605187303045/work
 wincertstore==0.2
+
+numpy~=1.19.2
+pandas~=1.1.5

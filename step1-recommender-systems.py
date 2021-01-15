@@ -32,23 +32,18 @@ predictions_description = pd.read_csv(predictions_file, delimiter=';', names=['u
 
 
 #####
-##
 ## COLLABORATIVE FILTERING
-##
 #####
-
 def predict_collaborative_filtering(movies, users, ratings, predictions):
-    # TO COMPLETE
+    M = construct_util_matrix(movies, users, ratings, predictions)
+    # print(ratings.loc[100])
 
     pass
 
 
 #####
-##
 ## LATENT FACTORS
-##
 #####
-
 def predict_latent_factors(movies, users, ratings, predictions):
     ## TO COMPLETE
 
@@ -56,11 +51,8 @@ def predict_latent_factors(movies, users, ratings, predictions):
 
 
 #####
-##
 ## FINAL PREDICTORS
-##
 #####
-
 def predict_final(movies, users, ratings, predictions):
     ## TO COMPLETE
 
@@ -68,34 +60,118 @@ def predict_final(movies, users, ratings, predictions):
 
 
 #####
-##
 ## RANDOM PREDICTORS
-## //!!\\ TO CHANGE
-##
 #####
-
 # By default, predicted rate is a random classifier
 def predict_random(movies, users, ratings, predictions):
     number_predictions = len(predictions)
-
     return [[idx, randint(1, 5)] for idx in range(1, number_predictions + 1)]
 
 
-#####
-##
-## SAVE RESULTS
-##
-#####    
+####################################################################################################
 
-## //!!\\ TO CHANGE by your prediction function
-predictions = predict_random(movies_description, users_description, ratings_description, predictions_description)
 
-# Save predictions, should be in the form 'list of tuples' or 'list of lists'
-with open(submission_file, 'w') as submission_writer:
-    # Formats data
-    predictions = [map(str, row) for row in predictions]
-    predictions = [','.join(row) for row in predictions]
-    predictions = 'Id,Rating\n'+'\n'.join(predictions)
+def construct_util_matrix(movies, users, ratings, predictions):
+    M = np.zeros(shape=(users.shape[0], movies.shape[0]))
+    for i, row in ratings.iterrows():
+        M[row['userID'] - 1, row['movieID'] - 1] = row['rating']
 
-    # Writes it down
-    submission_writer.write(predictions)
+    return M
+
+
+####################################################################################################
+
+
+def compute_column_probabilities(M):
+    probabilities = np.zeros(M.shape[1])
+
+    total = np.sum(np.square(M))
+    for i in range(M.shape[1]):
+        probabilities[i] = np.sum(np.square(M[:, i])) / total
+
+    return probabilities
+
+
+def compute_row_probabilities(M):
+    probabilities = np.zeros(M.shape[0])
+
+    total = np.sum(np.square(M))
+    for i in range(M.shape[0]):
+        probabilities[i] = np.sum(np.square(M[i, :])) / total
+
+    return probabilities
+
+
+def construct_c(M, r):
+    #     C = np.zeros([M.shape[0], r])
+
+    probs = compute_column_probabilities(M)
+    columns = np.random.choice(M.shape[1], r, p=probs)
+
+    C = np.multiply(M[:, columns],
+                    np.sqrt(np.multiply(probs[columns], r)))
+
+    return C, columns
+
+
+def construct_r(M, r):
+    probs = compute_row_probabilities(M)
+    rows = np.random.choice(M.shape[0], r, p=probs)
+
+    probsT = np.array(probs[rows])[np.newaxis].T
+
+    R = np.multiply(M[rows, :],
+                    np.sqrt(np.multiply(probsT, r)))
+
+    return R, rows
+
+
+def construct_u(M, r, rows, columns):
+    #     W = np.zeros([r, r])
+
+    W = M[:, columns][rows, :]
+
+    # compute U from W
+    X, E, Yt = np.linalg.svd(W)
+    E = np.linalg.pinv(np.diag(E)) ** 2
+    U = np.matmul(np.matmul(Yt.T, E), X.T)
+
+    return U
+
+
+def cur(M, r):
+    C, columns = construct_c(M, r)
+    R, rows = construct_r(M, r)
+    U = construct_u(M, r, rows, columns)
+
+    return C, U, R
+
+
+####################################################################################################
+
+
+def main():
+    # predict_collaborative_filtering(md, ud, rd, pd)
+    predictions = predict_random(movies_description, users_description, ratings_description, predictions_description)
+
+    # Save predictions, should be in the form 'list of tuples' or 'list of lists'
+    with open(submission_file, 'w') as submission_writer:
+        # Formats data
+        predictions = [map(str, row) for row in predictions]
+        predictions = [','.join(row) for row in predictions]
+        predictions = 'Id,Rating\n'+'\n'.join(predictions)
+
+        # Writes it down
+        submission_writer.write(predictions)
+
+
+def preprocessing():
+    M = construct_util_matrix(movies_description, users_description, ratings_description, predictions_description)
+    C, columns = construct_c(M, 2)
+    R, rows = construct_r(M, 2)
+    U = construct_u(M, 2, rows, columns)
+    C, U, R = cur(M, 7)
+
+
+if __name__ == '__main__':
+    main()
