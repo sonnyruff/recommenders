@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 import os.path
 import matplotlib.pyplot as plt
+from datetime import datetime
 from random import randint
 
 # -*- coding: utf-8 -*-
@@ -141,6 +142,7 @@ def construct_u(M, r, rows, columns):
 
 
 def cur(M, r):
+    print("Starting CUR : ", datetime.now().strftime('%H:%M:%S.%f'))
     C, columns = construct_c(M, r)
     R, rows = construct_r(M, r)
     U = construct_u(M, r, rows, columns)
@@ -149,6 +151,9 @@ def cur(M, r):
 
 
 ####################################################################################################
+
+
+M = construct_util_matrix(movies_description, users_description, ratings_description, predictions_description)
 
 
 def main():
@@ -167,11 +172,14 @@ def main():
 
 
 def preprocessing():
-    M = construct_util_matrix(movies_description, users_description, ratings_description, predictions_description)
-    C, columns = construct_c(M, 2)
-    R, rows = construct_r(M, 2)
-    U = construct_u(M, 2, rows, columns)
-    C, U, R = cur(M, 7)
+    # M = construct_util_matrix(movies_description, users_description, ratings_description, predictions_description)
+    C, U, R = cur(M, 6000)
+
+    plt.imshow(M[:100, :100])
+    plt.savefig('./M.png')
+
+    plt.imshow(np.matmul(np.matmul(C, U), R)[:100, :100])
+    plt.savefig('./CUR.png')
 
 
 def matplotlib_test():
@@ -206,4 +214,4 @@ def matplotlib_test():
 
 
 if __name__ == '__main__':
-    matplotlib_test()
+    preprocessing()
