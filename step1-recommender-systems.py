@@ -153,7 +153,7 @@ def cur(M, r):
 ####################################################################################################
 
 
-M = construct_util_matrix(movies_description, users_description, ratings_description, predictions_description)
+util_matrix = construct_util_matrix(movies_description, users_description, ratings_description, predictions_description)
 
 
 def main():
@@ -172,10 +172,10 @@ def main():
 
 
 def preprocessing():
-    # M = construct_util_matrix(movies_description, users_description, ratings_description, predictions_description)
-    C, U, R = cur(M, 6000)
+    # util_matrix = construct_util_matrix(movies_description, users_description, ratings_description, predictions_description)
+    C, U, R = cur(util_matrix, 6000)
 
-    plt.imshow(M[:100, :100])
+    plt.imshow(util_matrix[:100, :100])
     plt.savefig('./M.png')
 
     plt.imshow(np.matmul(np.matmul(C, U), R)[:100, :100])
