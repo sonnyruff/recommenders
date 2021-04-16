@@ -33,6 +33,7 @@ ratings_description = pd.read_csv(ratings_file, delimiter=';', dtype={'userID':'
 predictions_description = pd.read_csv(predictions_file, delimiter=';', names=['userID', 'movieID'], header=None)
 
 
+
 #####
 ## COLLABORATIVE FILTERING
 #####
@@ -68,6 +69,17 @@ def predict_final(movies, users, ratings, predictions):
 def predict_random(movies, users, ratings, predictions):
     number_predictions = len(predictions)
     return [[idx, randint(1, 5)] for idx in range(1, number_predictions + 1)]
+
+
+####################################################################################################
+
+def normalize_user_ratings(utility_matrix: np.array) -> np.array:
+    """
+    Normalizes the ratings for all the users
+    :param utility_matrix: the utility matrix which has data
+    :return:
+    """
+    return np.linalg.norm(utility_matrix, axis=1)
 
 
 ####################################################################################################
