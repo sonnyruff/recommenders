@@ -1,3 +1,6 @@
+import numpy as np
+
+
 def normalize_user_ratings(utility_matrix: np.array) -> np.array:
     """
     Normalizes the ratings for all the users
