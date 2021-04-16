@@ -16,4 +16,4 @@ def normalize_user_ratings(utility_matrix: np.array) -> np.array:
 
 
 def cosine_similarity(utility_matrix, i, j):
-    pass
+    return np.dot(utility_matrix[i], utility_matrix[j].T)/(np.linalg.norm(utility_matrix[i])*np.linalg.norm(utility_matrix[j]))

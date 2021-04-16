@@ -1,4 +1,4 @@
-from recommender_utility import normalize_user_ratings
+from recommender_utility import normalize_user_ratings, cosine_similarity
 import numpy as np
 
 test_ratings = np.array([
@@ -10,3 +10,4 @@ test_ratings = np.array([
 
 if __name__ == '__main__':
     print(normalize_user_ratings(test_ratings))
+    print(cosine_similarity(normalize_user_ratings(test_ratings), 0, 2))
