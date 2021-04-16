@@ -11,14 +11,17 @@ def normalize_user_ratings(utility_matrix: np.array) -> np.array:
     :return:
     """
     t = np.transpose
-    return t(t(utility_matrix) - (np.sum(utility_matrix, axis=1)
-                                  / np.count_nonzero(utility_matrix, axis=1))) * np.where(utility_matrix > 0, 1, 0)
+    # avgs = np.sum(utility_matrix, axis=1) / np.count_nonzero(utility_matrix, axis=1)
+    # nonzero_mask = np.where(utility_matrix > 0, 1, 0)
+    # return t(t(utility_matrix) - avgs) * nonzero_mask
+
+    avgs = np.sum(utility_matrix, axis=1) / np.count_nonzero(utility_matrix, axis=1)
+    zero_mask = np.where(utility_matrix > 0, 0, 1)
+    return t(t(utility_matrix) + avgs * t(zero_mask))
 
 
 def cosine_similarity(utility_matrix, i, j):
-    if np.sum(utility_matrix[i]) == 0 or np.sum(utility_matrix[j]) == 0:
-        return 0
-    return np.dot(utility_matrix[i], utility_matrix[j].T) / (
+    return np.dot(utility_matrix[i][:], utility_matrix[j][:].T) / (
                 np.linalg.norm(utility_matrix[i]) * np.linalg.norm(utility_matrix[j]))
 
 
