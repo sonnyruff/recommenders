@@ -16,13 +16,15 @@ def normalize_user_ratings(utility_matrix: np.array) -> np.array:
 
 
 def cosine_similarity(utility_matrix, i, j):
+    if np.sum(utility_matrix[i]) == 0 or np.sum(utility_matrix[j]) == 0:
+        return 0
     return np.dot(utility_matrix[i], utility_matrix[j].T) / (
                 np.linalg.norm(utility_matrix[i]) * np.linalg.norm(utility_matrix[j]))
 
 
 def similarity_matrix(utility_matrix):
-    sim_matrix = np.zeros((utility_matrix.shape[1], utility_matrix.shape[1]))
-    for i in range(utility_matrix.shape[0]):
-        for j in range(utility_matrix.shape[0]):
+    sim_matrix = np.zeros((utility_matrix.shape[0], utility_matrix.shape[0]))
+    for i in range(sim_matrix.shape[0]):
+        for j in range(sim_matrix.shape[0]):
             sim_matrix[i][j] = cosine_similarity(utility_matrix, i, j)
     return sim_matrix
