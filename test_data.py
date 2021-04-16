@@ -1,4 +1,4 @@
-from recommender import normalize_user_ratings
+from recommender_utility import normalize_user_ratings
 import numpy as np
 
 test_ratings = np.matrix([
