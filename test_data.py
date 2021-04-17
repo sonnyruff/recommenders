@@ -1,5 +1,6 @@
-from recommender_utility import normalize_user_ratings, cosine_similarity, similarity_matrix
+from recommender_utility import *
 import numpy as np
+import matplotlib.pyplot as plt
 
 test_ratings = np.array([
         [4, 0, 0, 5, 1, 0, 0],
@@ -9,6 +10,13 @@ test_ratings = np.array([
     ])
 
 if __name__ == '__main__':
-    normalized_user_ratings = normalize_user_ratings(test_ratings)
-    print(cosine_similarity(normalize_user_ratings(test_ratings), 0, 2))
-    print(similarity_matrix(normalized_user_ratings))
+    print(global_baseline(test_ratings))
+
+    # normalized_user_ratings = normalize_user_ratings(test_ratings)
+    # print(cosine_similarity(normalize_user_ratings(test_ratings), 0, 2))
+    # print(similarity_matrix(normalized_user_ratings))
+
+    # M = similarity_matrix(normalize_user_ratings(test_ratings))
+    # plt.imshow(M)
+    # plt.colorbar()
+    # plt.show()
