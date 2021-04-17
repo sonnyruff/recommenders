@@ -87,16 +87,18 @@ def normalize_user_ratings(utility_matrix: np.array) -> np.array:
 ####################################################################################################
 
 
+def limit_ratings(ratings, limit):
+    within_limit = (ratings["userID"]<limit) & (ratings["movieID"]<limit)
+    return ratings[within_limit]
+
+
 def construct_util_matrix(movies, users, ratings, predictions, limit):
     if limit > 0:
-        within_limit = (ratings["userID"]<limit) & (ratings["movieID"]<limit)
-        ratings = ratings[within_limit]
         M = np.zeros(shape=(limit, limit))
     else:
         M = np.zeros(shape=(users.shape[0], movies.shape[0]))
 
     for i, row in tqdm(ratings.iterrows(), total=ratings.shape[0]):
-    # for i, row in ratings.iterrows():
         M[row['userID'] - 1, row['movieID'] - 1] = row['rating']
 
     return M
@@ -232,15 +234,33 @@ def matplotlib_test():
 
 
 if __name__ == '__main__':
-    util_matrix = construct_util_matrix(movies_description, users_description, ratings_description, predictions_description, 1000)
+    limit = 0
 
-    # u, s, vh = np.linalg.svd(util_matrix)
+    # rd = limit_ratings(ratings_description, 10)
+    # print(rd.iloc[1]['userID'])
+    # for i, row in tqdm(rd.iterrows(), total=rd.shape[0]):
+    #     print(rd.loc[i]['userID'])
+    #     # rd.at[i,'userID'] = 0
+    # print(rd['userID'])
 
-    # recon_error = u @ (s[..., None] * vh) - util_matrix
+    train_ratings, test_ratings = split_ratings(ratings_description, 0.8)
+    print(train_ratings.shape)
+    print(test_ratings.shape)
 
-    # print(u[0,:] @ (s[..., None] * vh)[:,0])
+    util_matrix = construct_util_matrix(movies_description, users_description, train_ratings, predictions_description, limit)
+    estimated_ratings = global_baseline(util_matrix, test_ratings)
 
-    M = global_baseline(util_matrix)
-    plt.imshow(M)
-    plt.colorbar()
-    plt.show()
+    total_error = 0
+    for i, row in tqdm(estimated_ratings.iterrows(), total=estimated_ratings.shape[0]):
+        # estimate = estimates[row['userID'] - 1, row['movieID'] - 1]
+        # real = row['rating']
+        estimate = row['rating']
+        real = test_ratings.loc[i]['rating']
+        total_error += np.square(estimate - real)
+
+    print(np.sqrt(total_error / test_ratings.shape[0]))
+
+    # M = global_baseline(util_matrix)
+    # plt.imshow(M)
+    # plt.colorbar()
+    # plt.show()

@@ -1,5 +1,5 @@
 import numpy as np
-from tqdm import trange
+from tqdm import tqdm, trange
 
 np.set_printoptions(linewidth=150)
 
@@ -37,17 +37,16 @@ def similarity_matrix(utility_matrix):
 def global_baseline(utility_matrix):
     mean_movie_rating = np.sum(utility_matrix) / np.count_nonzero(utility_matrix)
     np.seterr(invalid='ignore')
-    movie_avgs = np.nan_to_num(np.sum(utility_matrix, axis=0) / np.count_nonzero(utility_matrix, axis=0))
     user_avgs = np.nan_to_num(np.sum(utility_matrix, axis=1) / np.count_nonzero(utility_matrix, axis=1))
+    movie_avgs = np.nan_to_num(np.sum(utility_matrix, axis=0) / np.count_nonzero(utility_matrix, axis=0))
 
-    movie_deviation = movie_avgs - np.average(movie_avgs)
     user_deviation = user_avgs - np.average(user_avgs)
+    movie_deviation = movie_avgs - np.average(movie_avgs)
 
-    u, s, vh = np.linalg.svd(utility_matrix)
+    u, s, vh = np.linalg.svd(utility_matrix, full_matrices=False)
     svh = s[..., None] * vh
 
     prediction_matrix = np.zeros(utility_matrix.shape)
-
     for user_id in trange(utility_matrix.shape[0]):
         for movie_id in range(utility_matrix.shape[1]):
             if utility_matrix[user_id][movie_id] == 0:
@@ -59,3 +58,35 @@ def global_baseline(utility_matrix):
                 prediction_matrix[user_id][movie_id] = utility_matrix[user_id][movie_id]
 
     return prediction_matrix
+
+
+def global_baseline(utility_matrix, predictions_description):
+    mean_movie_rating = np.sum(utility_matrix) / np.count_nonzero(utility_matrix)
+    np.seterr(invalid='ignore')
+    user_avgs = np.nan_to_num(np.sum(utility_matrix, axis=1) / np.count_nonzero(utility_matrix, axis=1))
+    movie_avgs = np.nan_to_num(np.sum(utility_matrix, axis=0) / np.count_nonzero(utility_matrix, axis=0))
+
+    user_deviation = user_avgs - np.average(user_avgs)
+    movie_deviation = movie_avgs - np.average(movie_avgs)
+
+    u, s, vh = np.linalg.svd(utility_matrix, full_matrices=False)
+    svh = s[..., None] * vh
+
+    predictions = predictions_description.copy()
+    predictions['rating'] = np.nan
+
+    for i, row in tqdm(predictions.iterrows(), total=predictions.shape[0]):
+        uid = int(row['userID'] - 1)
+        mid = int(row['movieID'] - 1)
+
+        predictions.at[i, 'rating'] = mean_movie_rating +\
+                        user_deviation[uid] +\
+                        movie_deviation[mid] +\
+                        u[uid, :] @ svh[:, mid]
+
+    return predictions
+
+
+def split_ratings(ratings, percentage):
+    mask = np.random.rand(len(ratings)) < percentage
+    return ratings[mask], ratings[~mask]
