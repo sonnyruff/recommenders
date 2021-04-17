@@ -36,6 +36,7 @@ def similarity_matrix(utility_matrix):
 
 def global_baseline(utility_matrix):
     mean_movie_rating = np.sum(utility_matrix) / np.count_nonzero(utility_matrix)
+    np.seterr(invalid='ignore')
     movie_avgs = np.nan_to_num(np.sum(utility_matrix, axis=0) / np.count_nonzero(utility_matrix, axis=0))
     user_avgs = np.nan_to_num(np.sum(utility_matrix, axis=1) / np.count_nonzero(utility_matrix, axis=1))
 
