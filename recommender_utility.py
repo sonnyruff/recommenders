@@ -43,12 +43,18 @@ def global_baseline(utility_matrix):
     movie_deviation = movie_avgs - np.average(movie_avgs)
     user_deviation = user_avgs - np.average(user_avgs)
 
+    u, s, vh = np.linalg.svd(utility_matrix)
+    svh = s[..., None] * vh
+
     prediction_matrix = np.zeros(utility_matrix.shape)
 
     for user_id in trange(utility_matrix.shape[0]):
         for movie_id in range(utility_matrix.shape[1]):
             if utility_matrix[user_id][movie_id] == 0:
-                prediction_matrix[user_id][movie_id] = mean_movie_rating + movie_deviation[movie_id] + user_deviation[user_id]
+                prediction_matrix[user_id][movie_id] = mean_movie_rating +\
+                                                       movie_deviation[movie_id] +\
+                                                       user_deviation[user_id] +\
+                                                       u[0, :] @ svh[:, 0]
             else:
                 prediction_matrix[user_id][movie_id] = utility_matrix[user_id][movie_id]
 

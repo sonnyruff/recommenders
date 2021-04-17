@@ -232,7 +232,13 @@ def matplotlib_test():
 
 
 if __name__ == '__main__':
-    util_matrix = construct_util_matrix(movies_description, users_description, ratings_description, predictions_description, 0)
+    util_matrix = construct_util_matrix(movies_description, users_description, ratings_description, predictions_description, 1000)
+
+    # u, s, vh = np.linalg.svd(util_matrix)
+
+    # recon_error = u @ (s[..., None] * vh) - util_matrix
+
+    # print(u[0,:] @ (s[..., None] * vh)[:,0])
 
     M = global_baseline(util_matrix)
     plt.imshow(M)
