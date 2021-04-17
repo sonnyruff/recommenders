@@ -4,6 +4,7 @@ import os.path
 import matplotlib.pyplot as plt
 import time
 from random import randint
+from recommender_utility import *
 
 # -*- coding: utf-8 -*-
 """
@@ -85,8 +86,14 @@ def normalize_user_ratings(utility_matrix: np.array) -> np.array:
 ####################################################################################################
 
 
-def construct_util_matrix(movies, users, ratings, predictions):
-    M = np.zeros(shape=(users.shape[0], movies.shape[0]))
+def construct_util_matrix(movies, users, ratings, predictions, limit):
+    if limit > 0:
+        within_limit = (ratings["userID"]<limit) & (ratings["movieID"]<limit)
+        ratings = ratings[within_limit]
+        M = np.zeros(shape=(limit, limit))
+    else:
+        M = np.zeros(shape=(users.shape[0], movies.shape[0]))
+
     for i, row in ratings.iterrows():
         M[row['userID'] - 1, row['movieID'] - 1] = row['rating']
 
@@ -165,9 +172,6 @@ def cur(M, r):
 ####################################################################################################
 
 
-util_matrix = construct_util_matrix(movies_description, users_description, ratings_description, predictions_description)
-
-
 def main():
     # predict_collaborative_filtering(md, ud, rd, pd)
     predictions = predict_random(movies_description, users_description, ratings_description, predictions_description)
@@ -226,4 +230,9 @@ def matplotlib_test():
 
 
 if __name__ == '__main__':
-    preprocessing()
+    util_matrix = construct_util_matrix(movies_description, users_description, ratings_description, predictions_description, 100)
+
+    M = global_baseline(util_matrix)
+    plt.imshow(M)
+    plt.colorbar()
+    plt.show()

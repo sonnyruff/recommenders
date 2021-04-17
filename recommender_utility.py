@@ -1,4 +1,5 @@
 import numpy as np
+from tqdm import trange
 
 np.set_printoptions(linewidth=150)
 
@@ -35,15 +36,18 @@ def similarity_matrix(utility_matrix):
 
 def global_baseline(utility_matrix):
     mean_movie_rating = np.sum(utility_matrix) / np.count_nonzero(utility_matrix)
-    movie_avgs = np.sum(utility_matrix, axis=0) / np.count_nonzero(utility_matrix, axis=0)
-    user_avgs = np.sum(utility_matrix, axis=1) / np.count_nonzero(utility_matrix, axis=1)
+    movie_avgs = np.nan_to_num(np.sum(utility_matrix, axis=0) / np.count_nonzero(utility_matrix, axis=0))
+    user_avgs = np.nan_to_num(np.sum(utility_matrix, axis=1) / np.count_nonzero(utility_matrix, axis=1))
+
+    print(movie_avgs)
+    print(user_avgs)
 
     movie_deviation = movie_avgs - np.average(movie_avgs)
     user_deviation = user_avgs - np.average(user_avgs)
 
     prediction_matrix = np.zeros(utility_matrix.shape)
 
-    for user_id in range(utility_matrix.shape[0]):
+    for user_id in trange(utility_matrix.shape[0]):
         for movie_id in range(utility_matrix.shape[1]):
             if utility_matrix[user_id][movie_id] == 0:
                 prediction_matrix[user_id][movie_id] = mean_movie_rating + movie_deviation[movie_id] + user_deviation[user_id]
