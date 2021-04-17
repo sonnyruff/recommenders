@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import time
 from random import randint
 from recommender_utility import *
+from tqdm import tqdm
 
 # -*- coding: utf-8 -*-
 """
@@ -94,7 +95,8 @@ def construct_util_matrix(movies, users, ratings, predictions, limit):
     else:
         M = np.zeros(shape=(users.shape[0], movies.shape[0]))
 
-    for i, row in ratings.iterrows():
+    for i, row in tqdm(ratings.iterrows(), total=ratings.shape[0]):
+    # for i, row in ratings.iterrows():
         M[row['userID'] - 1, row['movieID'] - 1] = row['rating']
 
     return M
@@ -230,7 +232,7 @@ def matplotlib_test():
 
 
 if __name__ == '__main__':
-    util_matrix = construct_util_matrix(movies_description, users_description, ratings_description, predictions_description, 100)
+    util_matrix = construct_util_matrix(movies_description, users_description, ratings_description, predictions_description, 0)
 
     M = global_baseline(util_matrix)
     plt.imshow(M)

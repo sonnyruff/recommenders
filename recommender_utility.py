@@ -39,9 +39,6 @@ def global_baseline(utility_matrix):
     movie_avgs = np.nan_to_num(np.sum(utility_matrix, axis=0) / np.count_nonzero(utility_matrix, axis=0))
     user_avgs = np.nan_to_num(np.sum(utility_matrix, axis=1) / np.count_nonzero(utility_matrix, axis=1))
 
-    print(movie_avgs)
-    print(user_avgs)
-
     movie_deviation = movie_avgs - np.average(movie_avgs)
     user_deviation = user_avgs - np.average(user_avgs)
 
