@@ -89,7 +89,7 @@ def limit_ratings(ratings, limit):
     return ratings[within_limit]
 
 
-def construct_util_matrix(movies, users, ratings, predictions, limit):
+def construct_util_matrix(movies, users, ratings, limit):
     if limit > 0:
         M = np.zeros(shape=(limit, limit))
     else:
@@ -99,6 +99,18 @@ def construct_util_matrix(movies, users, ratings, predictions, limit):
         M[row['userID'] - 1, row['movieID'] - 1] = row['rating']
 
     return M
+
+
+def calc_rmse(estimates, test_set):
+    total_error = 0
+    for i, row in tqdm(estimates.iterrows(), total=estimates.shape[0]):
+        # estimate = estimates[row['userID'] - 1, row['movieID'] - 1]
+        # real = row['rating']
+        estimate = row['rating']
+        real = test_set.loc[i]['rating']
+        total_error += np.square(estimate - real)
+
+    return np.sqrt(total_error / test_set.shape[0])
 
 
 ####################################################################################################
@@ -130,22 +142,15 @@ if __name__ == '__main__':
     #     # rd.at[i,'userID'] = 0
     # print(rd['userID'])
 
-    train_ratings, test_ratings = split_ratings(ratings_description, 0.8)
+    train_ratings, test_ratings = split_ratings(ratings_description, 0.95)
     print(train_ratings.shape)
     print(test_ratings.shape)
 
-    util_matrix = construct_util_matrix(movies_description, users_description, train_ratings, predictions_description, limit)
+    util_matrix = construct_util_matrix(movies_description, users_description, train_ratings, limit)
     estimated_ratings = global_baseline(util_matrix, test_ratings)
 
-    total_error = 0
-    for i, row in tqdm(estimated_ratings.iterrows(), total=estimated_ratings.shape[0]):
-        # estimate = estimates[row['userID'] - 1, row['movieID'] - 1]
-        # real = row['rating']
-        estimate = row['rating']
-        real = test_ratings.loc[i]['rating']
-        total_error += np.square(estimate - real)
+    print(calc_rmse(estimated_ratings, test_ratings))
 
-    print(np.sqrt(total_error / test_ratings.shape[0]))
 
     # M = global_baseline(util_matrix)
     # plt.imshow(M)
