@@ -10,7 +10,12 @@ test_ratings = np.array([
     ])
 
 if __name__ == '__main__':
-    print(global_baseline(test_ratings))
+    # print(global_baseline(test_ratings))
+
+    user_avgs = np.nan_to_num(np.sum(test_ratings, axis=1) / np.count_nonzero(test_ratings, axis=1))
+    print(test_ratings[0, :4].shape)
+    # print(np.array(test_ratings[:, 0])[np.newaxis].T)
+    print(test_ratings[0, :4] @ test_ratings[:, 0])
 
     # normalized_user_ratings = normalize_user_ratings(test_ratings)
     # print(cosine_similarity(normalize_user_ratings(test_ratings), 0, 2))
