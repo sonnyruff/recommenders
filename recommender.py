@@ -33,7 +33,6 @@ ratings_description = pd.read_csv(ratings_file, delimiter=';', dtype={'userID':'
 predictions_description = pd.read_csv(predictions_file, delimiter=';', names=['userID', 'movieID'], header=None)
 
 
-
 #####
 ## COLLABORATIVE FILTERING
 #####
@@ -121,6 +120,7 @@ def main():
 
 
 if __name__ == '__main__':
+    # !! LIMIT DOESN'T WORK ANYMORE !!
     limit = 0
 
     # rd = limit_ratings(ratings_description, 10)
