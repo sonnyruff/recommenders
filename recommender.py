@@ -120,48 +120,6 @@ def main():
         submission_writer.write(predictions)
 
 
-def preprocessing():
-    # util_matrix = construct_util_matrix(movies_description, users_description, ratings_description, predictions_description)
-    C, U, R = cur(util_matrix, 6000)
-
-    plt.imshow(util_matrix[:100, :100])
-    plt.savefig('./M.png')
-
-    plt.imshow(np.matmul(np.matmul(C, U), R)[:100, :100])
-    plt.savefig('./CUR.png')
-
-
-def matplotlib_test():
-    M = np.matrix([
-        [1, 1, 1, 0, 0],
-        [3, 3, 3, 0, 0],
-        [4, 4, 4, 0, 0],
-        [5, 5, 5, 0, 0],
-        [0, 0, 0, 4, 4],
-        [0, 0, 0, 5, 5],
-        [0, 0, 0, 2, 2]
-    ])
-
-    C, U, R = cur(M, 7)
-
-    plt.imshow(M)
-    plt.colorbar()
-    plt.show()
-
-    fig = plt.figure()
-    ax1 = fig.add_subplot(1,3,1)
-    ax1.imshow(C)
-    ax1 = fig.add_subplot(1,3,2)
-    ax1.imshow(U)
-    ax1 = fig.add_subplot(1,3,3)
-    ax1.imshow(R)
-    plt.show()
-
-    plt.imshow(np.matmul(np.matmul(C, U), R))
-    plt.colorbar()
-    plt.show()
-
-
 if __name__ == '__main__':
     limit = 0
 
